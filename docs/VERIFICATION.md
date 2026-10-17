@@ -6,6 +6,7 @@
 | --- | --- | --- | --- |
 | 1.21.11 | 25 / 25 | 37 / 37 | [设置](verification/1.21.11/settings.png)、[诊断](verification/1.21.11/diagnostics.png)、[HUD](verification/1.21.11/hud-ring.png)、[拖拽编辑](verification/1.21.11/hud-editor.png) |
 | 26.1.2 | 25 / 25 | 37 / 37 | [设置](verification/26.1.2/settings.png)、[诊断](verification/26.1.2/diagnostics.png)、[HUD](verification/26.1.2/hud-ring.png)、[拖拽编辑](verification/26.1.2/hud-editor.png) |
+| 26.2 | 25 / 25 | 37 / 37 | [设置](verification/26.2/settings.png)、[诊断](verification/26.2/diagnostics.png)、[HUD](verification/26.2/hud-ring.png)、[拖拽编辑](verification/26.2/hud-editor.png) |
 
 每个版本还保存了图标、进度条、仅时间样式的截图。截图显示原版设置／诊断控件、原版场景与冷却 HUD；测试数据只在各自 `build/smoke-run/` 的独立本地测试世界中使用。
 
