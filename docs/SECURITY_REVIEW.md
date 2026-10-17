@@ -1,25 +1,25 @@
-# 上传前敏感信息检查
+# Pre-upload sensitive information review
 
-检查日期：2026-10-17。版本：1.1.0。
+Review date: 2026-10-17. Version: 1.1.0.
 
-## 检查范围与结果
+## Scope and findings
 
-- 对全部待提交源码、构建脚本、测试样本、文档，以及三个发行 JAR 的解压内容执行 Gitleaks 8.30.1 默认规则扫描，并启用解码检查；未发现凭证泄露。
-- 额外检查 GitHub 令牌、AWS 访问密钥、私钥、JWT、带密码的 URL、个人邮箱及本机用户路径；未发现待上传的敏感内容。
-- PNG 截图没有文本、EXIF 或其他个人路径元数据；截图来自独立本地测试世界及 MOD 界面。
-- 两份测试样本只保留冷却文本、物品名称和秒数；已去掉其中 1425 条记录附带的原诊断文件名，不影响 75 项单元测试通过。
-- 使用 GitHub 提供的 noreply 邮箱作为提交作者邮箱，不写入个人邮箱。初始化仓库后，对全部 Git 历史再次执行密钥扫描。
+- Gitleaks 8.30.1 scanned the staged source code, build scripts, test fixtures, documentation, and extracted contents of all three release JARs using its default rules and decoding checks. No credential leaks were detected.
+- Supplementary checks looked for GitHub tokens, AWS access keys, private keys, JWTs, URLs containing passwords, personal email addresses, and local user paths. No sensitive content was found in the upload set.
+- PNG screenshots have no text, EXIF, or personal-path metadata. They show isolated local test worlds and the mod's interfaces.
+- The two test fixtures retain only cooldown text, item names, and seconds. Original diagnostic filenames were removed from 1,425 records; all 75 unit tests still passed.
+- Git commits use a GitHub noreply author email. The complete Git history was scanned after repository initialization and reviewed again before public publication.
 
-## 上传边界
+## Files excluded from publication
 
-源码仓库不包含本机 Gradle 缓存、构建目录、游戏运行目录、账号会话、日志、诊断导出、游戏存档、环境变量文件、证书或私钥。相关路径及文件类型已加入 `.gitignore`。
+The source repository excludes local Gradle caches, build outputs, game runtime directories, account sessions, logs, diagnostic exports, world saves, environment files, certificates, and private keys. The relevant paths and file types are listed in `.gitignore`.
 
-发行 JAR 与 SHA-256 校验文件通过 GitHub Release 提供。仓库最初以私有方式上传；按维护者要求改为公开，公开前重新扫描 Git 历史和本次文档改动。
+Release JARs and SHA-256 checksums are distributed through GitHub Releases. The repository was initially uploaded privately, then made public at the maintainer's request after source and history scans.
 
-## 后续复查
+## Repeat the history scan
 
 ```sh
 gitleaks git . --redact --max-decode-depth 3
 ```
 
-自动扫描主要识别已知密钥格式和常见凭证写法，不能证明任意文件绝对不存在敏感信息。运行时生成的冷却诊断报告仍可能包含服务器地址和背包信息，应继续保留在忽略范围内。
+Automated scans identify known secret formats and common credential patterns; they cannot prove that every possible kind of sensitive information is absent. Runtime cooldown diagnostic reports may contain server addresses and inventory details and should remain excluded from version control.

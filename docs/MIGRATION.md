@@ -1,40 +1,42 @@
-# 拆分说明
+# Migration notes
 
-## 选择的实现
+## Implementation selected
 
-`EmbersClient/client-mod` 的 26.2 主分支只有基础 Apollo 冷却实现；`client-mod-1.21.11` 已包含服务器动作栏入口修复、KingMC 字形清洗、Boss 栏、动态 lore、自定义物品模型绑定和临时诊断。因此采用后者作为共享业务逻辑，再分别适配三个目标版本。
+The 26.2 branch in `EmbersClient/client-mod` contained the basic Apollo implementation. The `client-mod-1.21.11` branch also included the dedicated action-bar fix, KingMC font-glyph cleanup, boss-bar and dynamic-lore readers, custom item model binding, and temporary diagnostics. The latter became the shared implementation, adapted separately to all three Minecraft versions.
 
-## 迁移内容
+## Extraction scope
 
-| 原实现 | 独立版处理 |
+| Original implementation | Standalone implementation |
 | --- | --- |
-| `ApolloCooldowns` | 保留协议接收、原版冷却合并、去重、模型快照及资源重载缓存；移除 AeroUi/HudRenderer 缓存依赖 |
-| `ServerArtifactCooldowns`、`ServerCooldownText` | 保留系统消息／动作栏／Boss 栏／动态 lore 识别和确证时长学习 |
-| `LegacyCooldownPacket`、`ConfirmedCooldownTracker` | 保留旧 Lunar 解码和确证时长追踪 |
-| `CooldownFormat`、`CooldownTimeCache`、`BoundedCache` | 保留时间与名称处理及有界缓存 |
-| `CooldownDiagnostics`、`CooldownTraceBuffer` | 保留手动、限时、限量、本地异步导出；独立文件名和配置上下文，去掉 Live Hider 路由信息 |
-| `CooldownSettingsScreen`、`CooldownDiagnosticsScreen` | 重新实现为原版 Screen、Button、Slider，使用中英文语言文件 |
-| `HudEditorScreen` 的移动／缩放交互 | 独立重实现为原版 Screen；模块任意方向拖动、右下角等比缩放、滚轮缩放、固定预览及重置。与 HUD 共用 `HudLayout` 几何，位置用高精度百分比保存，兼容旧整数配置 |
-| `HudRenderer` 的冷却部分 | 提取为 `CooldownHud`，只绘制冷却；原版矩形背景、字体和物品绘制，保留四种布局 |
-| `ClientConfig` | 精简为 `CooldownConfig`，独立文件和原子保存；不读取／改写 Embers 配置 |
-| `EmbersClient` 入口 | 精简为 `LegendCooldown`，注册冷却、一个可重绑定设置键和一个 HUD 元素 |
+| `ApolloCooldowns` | Preserves protocol receivers, vanilla cooldown merging, deduplication, model snapshots, and resource-reload caches; removes AeroUi/HudRenderer cache dependencies |
+| `ServerArtifactCooldowns`, `ServerCooldownText` | Preserves system-message, action-bar, boss-bar, and dynamic-lore recognition, plus confirmed duration learning |
+| `LegacyCooldownPacket`, `ConfirmedCooldownTracker` | Preserves legacy Lunar decoding and confirmed duration tracking |
+| `CooldownFormat`, `CooldownTimeCache`, `BoundedCache` | Preserves time and name processing and bounded caching |
+| `CooldownDiagnostics`, `CooldownTraceBuffer` | Preserves manual, bounded, temporary capture and asynchronous local export; uses standalone filenames and configuration context, without Live Hider routing information |
+| `CooldownSettingsScreen`, `CooldownDiagnosticsScreen` | Rewritten with vanilla Screen, Button, and Slider widgets and English / Simplified Chinese translations |
+| `HudEditorScreen` movement and scaling | Reimplemented with a vanilla Screen: dragging, proportional lower-right resizing, wheel scaling, a fixed preview, and reset. Shares `HudLayout` geometry with the HUD and saves precise percentage positions while accepting older integer settings |
+| Cooldown rendering in `HudRenderer` | Extracted into `CooldownHud`, retaining four layouts with rectangular backgrounds, vanilla fonts, and item rendering |
+| `ClientConfig` | Reduced to `CooldownConfig` with its own file and atomic saving; does not read or modify Embers configuration |
+| `EmbersClient` entry point | Reduced to `LegendCooldown`, registering cooldowns, settings/editor key bindings, and one HUD element |
 
-只保留四个冷却相关 Mixin：动作栏只读监听、Boss 栏事件读取、原版冷却 tick 读取和增删冷却监听。所有包名、Mixin 方法前缀及 MOD ID 改为 `legendcooldown`。不修改原版消息内容，也不取消原版显示。
+Only four cooldown-related Mixins remain: a read-only action-bar listener, boss-bar event access, vanilla cooldown tick access, and cooldown add/remove listeners. Package names, Mixin method prefixes, and the mod ID use `legendcooldown`. Server messages are observed without changing their content or canceling their original display.
 
-## 版本差异
+## Version differences
 
-| 差异 | 1.21.11 | 26.1.2 | 26.2 |
+| Area | 1.21.11 | 26.1.2 | 26.2 |
 | --- | --- | --- | --- |
 | Loom | `fabric-loom-remap` + Mojang mappings | `fabric-loom` | `fabric-loom` |
-| Java 字节码 | 21 | 25 | 25 |
-| GUI 提交 | `GuiGraphics` / `render` | `GuiGraphicsExtractor` / `extractRenderState` | 同 26.1.2 |
-| 设置界面管理 | Minecraft | Minecraft | `Minecraft.gui` |
-| 原版 HUD 与动作栏 | `Gui` | `Gui` | `Hud` |
-| Fabric 按键助手 | KeyBindingHelper | KeyMappingHelper | KeyMappingHelper |
-| Payload 注册 | `playS2C` | `clientboundPlay` | `clientboundPlay` |
+| Java bytecode target | 21 | 25 | 25 |
+| GUI submission | `GuiGraphics` / `render` | `GuiGraphicsExtractor` / `extractRenderState` | Same as 26.1.2 |
+| Screen management | Minecraft | Minecraft | `Minecraft.gui` |
+| Vanilla HUD and action bar | `Gui` | `Gui` | `Hud` |
+| Fabric key helper | KeyBindingHelper | KeyMappingHelper | KeyMappingHelper |
+| Payload registration | `playS2C` | `clientboundPlay` | `clientboundPlay` |
 
-物品模型匹配使用组件 patch 的 `entrySet` 检查显式 item_model，兼容三个版本的 DataComponentPatch API。
+Item model matching inspects the component patch's `entrySet` for an explicitly supplied `item_model`, accommodating the DataComponentPatch APIs in all three versions.
 
-## 验证边界
+## Verification scope
 
-单元回归覆盖文本、特殊资源包字形、旧协议、时间格式及诊断缓冲。开发 smoke 验证真实客户端初始化、Apollo 显示／移除／重置、畸形包容错、原版冷却 Mixin、动作栏 Mixin、Boss 栏访问、原版设置和诊断界面以及报告导出。启动验证不登录线上服务器；服务器专有的新协议或未发送的数据仍需对应服务器实测。
+Unit tests cover text parsing, resource-pack font glyphs, legacy packets, time formatting, trace buffering, and HUD geometry. Development smoke checks exercise real client initialization, Apollo display/remove/reset messages, malformed payload handling, vanilla cooldown Mixins, the action-bar listener, boss-bar access, vanilla settings and diagnostics, HUD editing, and report export.
+
+Client verification uses isolated local worlds and does not connect to online servers. Server-specific protocols and data that a server does not send still require testing on the corresponding server.
