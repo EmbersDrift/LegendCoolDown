@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "id": "legendcooldown",
+  "version": "${version}",
+  "name": "Legend Cooldown",
+  "description": "Standalone legendary weapon cooldown HUD with vanilla settings and diagnostics.",
+  "authors": ["Embers"],
+  "license": "All-Rights-Reserved",
+  "environment": "client",
+  "entrypoints": {"client": ["com.embers.legendcooldown.LegendCooldown"]},
+  "mixins": ["legendcooldown.mixins.json"],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "${minecraft}",
+    "java": ">=${java}",
+    "fabric-api": "*"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "id": "legendcooldown_smoke",
+  "version": "1.0.0",
+  "name": "Legend Cooldown Development Smoke Test",
+  "environment": "client",
+  "entrypoints": {"client": ["com.embers.legendcooldown.SmokeTest"]}
+}

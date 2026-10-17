@@ -1,0 +1,114 @@
+version = "${mod_version}+mc${minecraftVersion}"
+group = 'com.embers.legendcooldown'
+base { archivesName = 'LegendCoolDown' }
+def legacy = minecraftVersion == '1.21.11'
+def newest = minecraftVersion == '26.2'
+
+loom {
+    splitEnvironmentSourceSets()
+    mods {
+        legendcooldown {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+}
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraftVersion}"
+    if (legacy) {
+        mappings loom.officialMojangMappings()
+        modImplementation "net.fabricmc:fabric-loader:${loader_version}"
+        modImplementation "net.fabricmc.fabric-api:fabric-api:${fabricApiVersion}"
+    } else {
+        implementation "net.fabricmc:fabric-loader:${loader_version}"
+        implementation "net.fabricmc.fabric-api:fabric-api:${fabricApiVersion}"
+    }
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+// The shared source uses 1.21.11 Mojang names. Apply explicit API renames for 26.x.
+def prepared = layout.buildDirectory.dir('generated/legendcooldown')
+tasks.register('prepareSources', Sync) {
+    from rootProject.file('src/client/java')
+    into prepared
+    inputs.property 'minecraftVersion', minecraftVersion
+    if (!legacy) filter { String line ->
+        line = line.replace('GuiGraphics', 'GuiGraphicsExtractor')
+            .replace('renderBackground(', 'extractBackground(')
+            .replace('void render(', 'void extractRenderState(')
+            .replace('super.render(', 'super.extractRenderState(')
+            .replace('.drawString(', '.text(')
+            .replace('.drawCenteredString(', '.centeredText(')
+            .replace('.renderItem(', '.item(')
+            .replace('client.keybinding.v1.KeyBindingHelper', 'client.keymapping.v1.KeyMappingHelper')
+            .replace('KeyBindingHelper.registerKeyBinding', 'KeyMappingHelper.registerKeyMapping')
+            .replace('PayloadTypeRegistry.playS2C()', 'PayloadTypeRegistry.clientboundPlay()')
+            .replace('.registerReloader(', '.registerReloadListener(')
+        if (newest) line = line.replace('client.screen', 'client.gui.screen()')
+            .replace('client.setScreen(', 'client.gui.setScreen(')
+            .replace('minecraft.setScreen(', 'minecraft.gui.setScreen(')
+            .replace('client.gui.getBossOverlay()', 'client.gui.hud.getBossOverlay()')
+            .replace('client.options.hideGui', 'client.gui.hud.isHidden()')
+            .replace('net.minecraft.client.gui.Gui;', 'net.minecraft.client.gui.Hud;')
+            .replace('@Mixin(Gui.class)', '@Mixin(Hud.class)')
+        return line
+    }
+}
+sourceSets {
+    main.resources.srcDir rootProject.file('src/main/resources')
+    client.java.setSrcDirs([prepared])
+    test.java.srcDir rootProject.file('src/test/java')
+    test.resources.srcDir rootProject.file('src/test/resources')
+}
+tasks.named('compileClientJava') { dependsOn 'prepareSources' }
+sourceSets.test.compileClasspath += sourceSets.client.output + configurations.clientCompileClasspath
+sourceSets.test.runtimeClasspath += sourceSets.client.output + configurations.clientRuntimeClasspath
+tasks.named('test', Test) { useJUnitPlatform() }
+tasks.named('processResources') {
+    inputs.properties(version: project.version, minecraft: minecraftVersion, java: javaVersion)
+    filesMatching(['fabric.mod.json', 'legendcooldown.mixins.json']) {
+        expand(version: project.version, minecraft: minecraftVersion, java: javaVersion)
+    }
+}
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+    options.release = project.ext.javaVersion as int
+}
+java { withSourcesJar() }
+tasks.named('sourcesJar') { dependsOn 'prepareSources' }
+
+// Development-only smoke mod; its classes and metadata are never packaged in release JARs.
+sourceSets {
+    smoke {
+        java.srcDir rootProject.file('tools/smoke/java')
+        resources.srcDir rootProject.file('tools/smoke/resources')
+        compileClasspath += sourceSets.client.output + configurations.clientCompileClasspath
+        runtimeClasspath += sourceSets.client.output + configurations.clientRuntimeClasspath
+    }
+}
+loom {
+    mods { legendcooldown_smoke { sourceSet sourceSets.smoke } }
+    runs {
+        smoke {
+            client()
+            name = "Legend Cooldown smoke ${minecraftVersion}"
+            vmArg '-Dlegendcooldown.smoke=true'
+            runDir 'build/smoke-run'
+        }
+    }
+}
+tasks.named('runSmoke') {
+    dependsOn tasks.named('smokeClasses')
+    classpath += sourceSets.smoke.runtimeClasspath
+    doFirst {
+        delete layout.buildDirectory.file('smoke-run/smoke-result.txt')
+        delete layout.buildDirectory.file('smoke-run/smoke-failure.txt')
+    }
+    doLast {
+        def failure = layout.buildDirectory.file('smoke-run/smoke-failure.txt').get().asFile
+        def result = layout.buildDirectory.file('smoke-run/smoke-result.txt').get().asFile
+        if (failure.exists()) throw new GradleException("Smoke failed: ${failure.text}")
+        if (!result.exists()) throw new GradleException('Smoke exited without a result')
+    }
+}

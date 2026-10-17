@@ -1,0 +1,14 @@
+plugins { id 'base' }
+
+tasks.register('dist', Copy) {
+    dependsOn subprojects.collect { it.tasks.named('build') }
+    from(subprojects.collect { p -> p.layout.buildDirectory.dir('libs') }) {
+        include "LegendCoolDown-${mod_version}+mc*.jar"
+        exclude '*-sources.jar', '*-dev.jar'
+    }
+    into layout.projectDirectory.dir('dist')
+}
+tasks.named('build') { dependsOn 'dist' }
+tasks.named('check') {
+    dependsOn subprojects.collect { "${it.path}:check" }
+}

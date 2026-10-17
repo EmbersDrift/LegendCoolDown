@@ -1,0 +1,7 @@
+{
+  "required": true,
+  "package": "com.embers.legendcooldown.mixin",
+  "compatibilityLevel": "JAVA_${java}",
+  "client": ["CooldownActionBarMixin", "BossHealthOverlayAccessor", "ItemCooldownsAccessor", "ItemCooldownsMixin"],
+  "injectors": {"defaultRequire": 1}
+}
