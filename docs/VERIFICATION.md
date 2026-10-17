@@ -8,7 +8,7 @@ All three versions built successfully. Release JARs are available in `dist/` and
 | 26.1.2 | 25 / 25 | 37 / 37 | [Settings](verification/26.1.2/settings.png), [Diagnostics](verification/26.1.2/diagnostics.png), [HUD](verification/26.1.2/hud-ring.png), [Editor](verification/26.1.2/hud-editor.png) |
 | 26.2 | 25 / 25 | 37 / 37 | [Settings](verification/26.2/settings.png), [Diagnostics](verification/26.2/diagnostics.png), [HUD](verification/26.2/hud-ring.png), [Editor](verification/26.2/hud-editor.png) |
 
-Each version also has icon, progress-bar, and time-only screenshots. Images show the vanilla world, settings/diagnostics widgets, and cooldown HUD. Test data was used only in isolated worlds under each project's `build/smoke-run/` directory.
+Each version also has icon, progress-bar, and time-only screenshots. Images show the vanilla world, settings/diagnostics widgets, and cooldown HUD. Test data was used only in isolated worlds under `versions/minecraft-<version>/build/smoke-run/`. The corresponding Gradle task is `:minecraft-<version>:runSmoke`; see [Project structure](PROJECT_STRUCTURE.md) for examples.
 
 ## Coverage
 

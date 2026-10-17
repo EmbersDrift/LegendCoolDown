@@ -1,3 +1,8 @@
+def expectedProjectName = "minecraft-${minecraftVersion}"
+def expectedProjectDirectory = rootProject.file("versions/${expectedProjectName}").canonicalFile
+if (project.name != expectedProjectName || project.projectDir.canonicalFile != expectedProjectDirectory) {
+    throw new GradleException("Minecraft ${minecraftVersion} must use project :${expectedProjectName} at versions/${expectedProjectName}")
+}
 version = "${mod_version}+mc${minecraftVersion}"
 group = 'com.embers.legendcooldown'
 base { archivesName = 'LegendCoolDown' }

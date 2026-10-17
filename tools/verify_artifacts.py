@@ -10,7 +10,8 @@ ROOT = Path(__file__).resolve().parents[1]
 VERSION = next(line.split("=", 1)[1].strip() for line in (ROOT / "gradle.properties").read_text().splitlines() if line.startswith("mod_version="))
 report = {"mod": "legendcooldown", "version": VERSION, "versions": []}
 mixins = {"CooldownActionBarMixin", "BossHealthOverlayAccessor", "ItemCooldownsAccessor", "ItemCooldownsMixin"}
-for project, version, java in [("mc12111", "1.21.11", 21), ("mc2612", "26.1.2", 25), ("mc262", "26.2", 25)]:
+for version, java in [("1.21.11", 21), ("26.1.2", 25), ("26.2", 25)]:
+    project = ROOT / "versions" / f"minecraft-{version}"
     jar = ROOT / "dist" / f"LegendCoolDown-{VERSION}+mc{version}.jar"
     with zipfile.ZipFile(jar) as archive:
         metadata = json.loads(archive.read("fabric.mod.json"))
@@ -23,10 +24,10 @@ for project, version, java in [("mc12111", "1.21.11", 21), ("mc2612", "26.1.2", 
             assert "SmokeTest" not in name and "legendcooldown_smoke" not in name
             if name.endswith(".class"):
                 assert int.from_bytes(archive.read(name)[6:8], "big") == java + 44
-    suites = [ET.parse(path).getroot() for path in (ROOT / project / "build/test-results/test").glob("TEST-*.xml")]
+    suites = [ET.parse(path).getroot() for path in (project / "build/test-results/test").glob("TEST-*.xml")]
     tests = {key: sum(int(s.attrib[key]) for s in suites) for key in ["tests", "failures", "errors"]}
     assert tests["tests"] == 25 and tests["failures"] == tests["errors"] == 0
-    run = ROOT / project / "build/smoke-run"
+    run = project / "build/smoke-run"
     assert not (run / "smoke-failure.txt").exists()
     checks = (run / "smoke-result.txt").read_text(encoding="utf-8").splitlines()
     assert len(checks) == 37
@@ -35,11 +36,12 @@ for project, version, java in [("mc12111", "1.21.11", 21), ("mc2612", "26.1.2", 
     for name in ["settings", "diagnostics", "hud-ring", "hud-icon", "hud-bar", "hud-text", "hud-editor"]:
         shutil.copy2(run / "screenshots" / f"{name}.png", pictures / f"{name}.png")
     report["versions"].append({
-        "minecraft": version, "javaBytecode": java, "artifact": str(jar.relative_to(ROOT)),
+        "minecraft": version, "javaBytecode": java, "project": project.relative_to(ROOT).as_posix(),
+        "artifact": jar.relative_to(ROOT).as_posix(),
         "bytes": jar.stat().st_size, "sha256": hashlib.sha256(jar.read_bytes()).hexdigest(),
         "unitTests": tests, "clientSmokeChecks": checks,
-        "screenshots": str(pictures.relative_to(ROOT)),
+        "screenshots": pictures.relative_to(ROOT).as_posix(),
     })
 target = ROOT / "docs/verification/results.json"
-target.write_text(json.dumps(report, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+target.write_bytes((json.dumps(report, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
 print("Verified three release JARs, 75 unit tests and 111 client smoke checks.")

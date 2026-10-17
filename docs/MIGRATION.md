@@ -1,5 +1,7 @@
 # Migration notes
 
+Version builds use `versions/minecraft-<full-version>/` directories and matching Gradle project names. Shared build rules live in `gradle/minecraft-version.gradle`; see [Project structure](PROJECT_STRUCTURE.md) for the directory contract and commands.
+
 ## Implementation selected
 
 The 26.2 branch in `EmbersClient/client-mod` contained the basic Apollo implementation. The `client-mod-1.21.11` branch also included the dedicated action-bar fix, KingMC font-glyph cleanup, boss-bar and dynamic-lore readers, custom item model binding, and temporary diagnostics. The latter became the shared implementation, adapted separately to all three Minecraft versions.

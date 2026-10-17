@@ -6,4 +6,9 @@ pluginManagement {
     }
 }
 rootProject.name = 'LegendCoolDown'
-include 'mc12111', 'mc2612', 'mc262'
+// Use complete Minecraft versions for both logical project names and physical directories.
+['1.21.11', '26.1.2', '26.2'].each { minecraftVersion ->
+    def projectName = "minecraft-${minecraftVersion}"
+    include projectName
+    project(":${projectName}").projectDir = file("versions/${projectName}")
+}

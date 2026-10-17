@@ -5,7 +5,8 @@
     {
       "minecraft": "1.21.11",
       "javaBytecode": 21,
-      "artifact": "dist\\LegendCoolDown-1.1.0+mc1.21.11.jar",
+      "project": "versions/minecraft-1.21.11",
+      "artifact": "dist/LegendCoolDown-1.1.0+mc1.21.11.jar",
       "bytes": 91458,
       "sha256": "377e6793e6b37a20260b99a4f69b6f83cecd13c8e9665da725ee20da2512a96d",
       "unitTests": {
@@ -52,12 +53,13 @@
         "Closing editor returns to settings",
         "Reset button restores default position and scale"
       ],
-      "screenshots": "docs\\verification\\1.21.11"
+      "screenshots": "docs/verification/1.21.11"
     },
     {
       "minecraft": "26.1.2",
       "javaBytecode": 25,
-      "artifact": "dist\\LegendCoolDown-1.1.0+mc26.1.2.jar",
+      "project": "versions/minecraft-26.1.2",
+      "artifact": "dist/LegendCoolDown-1.1.0+mc26.1.2.jar",
       "bytes": 89279,
       "sha256": "91fbd338a255b8618f4b201cda8f9f4886a5f38bebd62a26d696966c04f724aa",
       "unitTests": {
@@ -104,12 +106,13 @@
         "Closing editor returns to settings",
         "Reset button restores default position and scale"
       ],
-      "screenshots": "docs\\verification\\26.1.2"
+      "screenshots": "docs/verification/26.1.2"
     },
     {
       "minecraft": "26.2",
       "javaBytecode": 25,
-      "artifact": "dist\\LegendCoolDown-1.1.0+mc26.2.jar",
+      "project": "versions/minecraft-26.2",
+      "artifact": "dist/LegendCoolDown-1.1.0+mc26.2.jar",
       "bytes": 89443,
       "sha256": "6bc1449ce236d65b96084ab6349d95cabad7b2a8c40e78133d66d059be6d75cf",
       "unitTests": {
@@ -156,7 +159,7 @@
         "Closing editor returns to settings",
         "Reset button restores default position and scale"
       ],
-      "screenshots": "docs\\verification\\26.2"
+      "screenshots": "docs/verification/26.2"
     }
   ]
 }

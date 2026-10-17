@@ -115,7 +115,16 @@ Install **JDK 25 or newer**, then run from the project root:
 bash ./gradlew build
 ```
 
-The three release JARs are written to `dist/`. The version projects are `mc12111`, `mc2612`, and `mc262`; shared source code is in `src/client/java/`.
+The three release JARs are written to `dist/`. Each Minecraft target uses its complete version in both the directory and Gradle project name:
+
+```text
+versions/
+├── minecraft-1.21.11/
+├── minecraft-26.1.2/
+└── minecraft-26.2/
+```
+
+Shared source code is in `src/client/java/`, and common build rules are in `gradle/minecraft-version.gradle`. For example, run `./gradlew :minecraft-26.1.2:build` to build only Minecraft 26.1.2, or `./gradlew :minecraft-26.1.2:runSmoke` to launch its isolated client checks. On Windows, use `.\gradlew.bat` instead of `./gradlew`.
 
 Each version passed **25 unit tests and 37 client / in-game checks**. Client verification used isolated local worlds; online servers were not tested.
 
@@ -123,6 +132,7 @@ Each version passed **25 unit tests and 37 client / in-game checks**. Client ver
 | --- | --- |
 | [Verification and screenshots](docs/VERIFICATION.md) | Test scope, results, and screenshots for all three versions |
 | [Migration notes](docs/MIGRATION.md) | Module origins, extraction scope, and version differences |
+| [Project structure](docs/PROJECT_STRUCTURE.md) | Version directory conventions, Gradle project paths, and build commands |
 | [Sensitive information review](docs/SECURITY_REVIEW.md) | Pre-upload checks and excluded files |
 
 ## Origins and license

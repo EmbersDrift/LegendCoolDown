@@ -115,7 +115,9 @@ HUD 在有可识别的冷却时显示。可先按 **H** 查看预览，确认模
 bash ./gradlew build
 ```
 
-三个发行 JAR 输出至 `dist/`。`mc12111`、`mc2612`、`mc262` 为三个版本的构建项目；共享源码位于 `src/client/java/`。
+三个发行 JAR 输出至 `dist/`。各版本子项目统一放在 `versions/minecraft-1.21.11/`、`versions/minecraft-26.1.2/`、`versions/minecraft-26.2/`，Gradle 项目名也使用完整版本号；共享源码位于 `src/client/java/`，公共构建规则位于 `gradle/minecraft-version.gradle`。
+
+例如，执行 `.\gradlew.bat :minecraft-26.1.2:build` 单独构建 26.1.2，或执行 `.\gradlew.bat :minecraft-26.1.2:runSmoke` 启动对应版本的独立客户端检查。详见 [项目结构与命名约定](docs/PROJECT_STRUCTURE.md)。
 
 当前各版本均通过 **25 项单元测试和 37 项客户端／本地游戏内检查**。开发验证使用独立本地世界，未进行线上服务器实测。
 
